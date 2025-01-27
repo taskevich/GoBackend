@@ -24,8 +24,12 @@ func (r *UserRepository) GetUserById(id uint) (*models.User, error) {
 
 func (r *UserRepository) GetUsers() ([]models.User, error) {
 	var users []models.User
-	r.db.Find(&users)
+	r.db.Preload("Role").Find(&users)
 	return users, nil
+}
+
+func (r *UserRepository) ExportUsers() {
+
 }
 
 func (r *UserRepository) DeleteUserById(id uint) error {

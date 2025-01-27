@@ -2,7 +2,7 @@
 
 Swagger initialization
 ```shell
-swag init --dir ./cmd,./internal/handler/http/v1,./internal/dto --output ./docs
+swag init --dir ./cmd,./internal/handler/http/v1,./internal/dto --output ./internal/handler/http/docs
 ```
 
 Docker build

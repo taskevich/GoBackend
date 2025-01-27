@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"encoding/csv"
 	"github.com/gin-gonic/gin"
 	"main/internal/dto"
 	"main/internal/service"
@@ -59,7 +60,51 @@ func (h *UserHandler) GetUsers(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, users)
+	c.JSON(http.StatusOK, dto.UsersResponse{Users: users})
+}
+
+// ExportUsersCsv
+// @Summary      Get All Users In Csv
+// @Description  Retrieve a Csv file with all users
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}   map[string]interface{}
+// @Failure      500  {object}  map[string]string  "Internal Server Error"
+// @Router       /users/export [get]
+func (h *UserHandler) ExportUsersCsv(c *gin.Context) {
+	users, err := h.userService.GetUsers()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Header("Content-Type", "text/csv")
+	c.Header("Content-Disposition", `attachment; filename="users.csv"`)
+
+	writer := csv.NewWriter(c.Writer)
+	defer writer.Flush()
+
+	headers := []string{"Id", "Login", "Password", "Role", "CreatedAt", "UpdatedAt"}
+	if err := writer.Write(headers); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	for _, user := range users {
+		record := []string{
+			strconv.Itoa(int(user.Id)),
+			user.Login,
+			user.Password,
+			user.Role.Name,
+			user.CreatedAt.String(),
+			user.UpdatedAt.String(),
+		}
+		if err := writer.Write(record); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	}
 }
 
 // DeleteUserById
@@ -85,7 +130,6 @@ func (h *UserHandler) DeleteUserById(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{"message": "OK"})
 }
 
@@ -101,7 +145,6 @@ func (h *UserHandler) DeleteUserById(c *gin.Context) {
 // @Router       /users [post]
 func (h *UserHandler) AddUser(c *gin.Context) {
 	var newUser dto.CreateUserRequest
-
 	if err := c.ShouldBindBodyWithJSON(&newUser); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -112,6 +155,5 @@ func (h *UserHandler) AddUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{"message": userId})
 }

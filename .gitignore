@@ -16,7 +16,7 @@ tags
 
 # Directories
 bin/
-docs/
+internal/handler/http/docs/
 **/logs/
 
 # Test binary, built with `go test -c`

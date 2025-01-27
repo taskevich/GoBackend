@@ -8,6 +8,7 @@ import (
 func RegisterUserRoutes(router *gin.RouterGroup, handler *v1.UserHandler) {
 	userRouter := router.Group("/users")
 	userRouter.GET("/", handler.GetUsers)
+	userRouter.GET("/export", handler.ExportUsersCsv)
 	userRouter.GET("/:id", handler.GetUserById)
 	userRouter.POST("/", handler.AddUser)
 	userRouter.DELETE("/:id", handler.DeleteUserById)
