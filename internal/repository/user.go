@@ -28,10 +28,6 @@ func (r *UserRepository) GetUsers() ([]models.User, error) {
 	return users, nil
 }
 
-func (r *UserRepository) ExportUsers() {
-
-}
-
 func (r *UserRepository) DeleteUserById(id uint) error {
 	if err := r.db.Delete(models.User{}, id).Error; err != nil {
 		return err
